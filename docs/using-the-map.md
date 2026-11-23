@@ -87,6 +87,18 @@ Appears when Claude or Codex has just changed things. It lays the changed cards 
 ### Screens
 Every page of your app that Floorplan detected. Pick one to see everything behind it: its components, the requests it makes, the server code that answers them, the data they touch, and outside services.
 
+### UML
+
+For TypeScript and JavaScript code, **UML** opens the same codebase as diagrams. It has three tabs:
+
+- **Classes.** A class diagram of a part, a file, or one class and its neighbours: what each class extends and implements, and what its constructor is handed (inversify, NestJS and plain constructors all count). Boxes are coloured by role (controller, service, repository, adapter…), read from decorators and names. Click a class to centre the diagram on it, and click one of its methods to trace it as a sequence diagram. Above 60 classes the members are hidden, and above 140 only the most connected are drawn, so pick a part on the left to narrow it. Error classes are left out until you turn on **Errors**.
+- **Data model.** An entity-relationship diagram of Prisma models and Drizzle tables: keys, columns and relations, with crow's-foot ends (one, many, optional). Click a table to see it with the tables it relates to. Prisma schemas spread over several schemas or folders get a switch for each.
+- **Sequence.** Pick an endpoint, and the map traces its handler through the classes it calls, down to the database: `Client → OrderController → OrderService → OrderRepository → Database`. It follows an interface to the class the container binds to it (or to its only implementation). **Calls on itself** adds a class's private helper calls, **Depth** sets how many classes deep to go, and logging calls are always left out. Searching finds any `Class.method` too, and each flow on the map draws as a sequence diagram of its steps.
+
+Every diagram has **Copy Mermaid** (paste into a README, a pull request, Notion or GitHub, which all draw it), **Copy PlantUML** and **SVG**. A file's, a part's and an endpoint's details panel link to its diagram, and the **UML** menu opens the one for whatever is selected.
+
+It's read with pattern matching, not a compiler, so it misses calls made through a variable (`const svc = this.orders; svc.find()`) and anything outside classes: code written as plain functions has no class diagram, though its flows still draw. Tables defined only in SQL migrations aren't read.
+
 ### Export
 Saves a copy of the map to send to anyone, such as a teammate, a client, or someone without Claude or Codex. It's one HTML file that opens in any browser with nothing to install. The copy has the whole map, search, screens, the tour and flows, but no Ask bar, no **Fix with Claude** or **Build this** requests, no editor links, and nothing about your computer, like its folder path. An **Exported** label beside the title shows the date, and a small **Made with Floorplan** link at the bottom leads here.
 

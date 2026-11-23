@@ -16,6 +16,7 @@ import { buildHealth, withDismissed, dismissalFor, maskSecrets } from './lib/hea
 import { scriptJson, scriptCode, withPolicy, editorTemplate } from '../assets/page-safety.mjs';
 import { buildPlanHealth } from './lib/blueprint.mjs';
 import { buildScreens } from './lib/screens.mjs';
+import { buildUml } from './lib/uml.mjs';
 import { writeClaudeMd } from './lib/claudemd.mjs';
 import { detectAgent } from './lib/agent.mjs';
 
@@ -605,6 +606,8 @@ const graph = {
 if (!scan.blueprint) try { graph.health = buildHealth({ graph, scan, arch, root }); } catch (e) { warn(`health check failed: ${e.message}`); graph.health = { issues: [] }; }
 try { graph.screens = buildScreens({ graph, scan, arch, root }); } catch (e) { warn(`screen detection failed: ${e.message}`); graph.screens = []; }
 if (scan.blueprint) try { graph.health = buildPlanHealth({ graph, scan }); } catch (e) { warn(`design review failed: ${e.message}`); graph.health = { issues: [] }; }
+// classes, what each is handed, the calls between them and the data model, for the UML diagrams (lib/uml.mjs)
+if (!scan.blueprint) try { const uml = buildUml({ graph, scan, root }); if (uml) graph.uml = uml; } catch (e) { warn(`UML model failed: ${e.message}`); }
 // issues people marked "not a problem" on the map (saved by serve.mjs) stay listed, set apart, and leave the counts
 const dismissedFile = path.join(outDir, 'health-dismissed.json');
 if (graph.health?.issues && fs.existsSync(dismissedFile)) {
@@ -682,6 +685,7 @@ if (healthChecked.length) {
 // what "no open endpoints" rests on, when an app-wide check is all that protects some of them
 for (const g of graph.health?.appWide || []) report.push(`APP-WIDE CHECK  ${g.name} (${g.file}:${g.line}) is the only login check Health saw on ${g.endpoints} endpoint${g.endpoints === 1 ? '' : 's'}`);
 if (graph.screens?.length) report.push(`SCREENS  ${graph.screens.length} detected`);
+if (graph.uml) report.push(`UML  ${graph.uml.counts.classes} classes · ${graph.uml.counts.interfaces} interfaces · ${graph.uml.counts.entities} data entities`);
 report.push(graph.recent
   ? `RECENT WORK  ${graph.recent.items.length} card(s) highlighted across ${graph.recent.tasks.length} task(s)`
   : `RECENT WORK  none highlighted${fs.existsSync(recentFile) ? '' : ' (no recent-work.json)'}`);
@@ -708,6 +712,7 @@ else {
       checked: healthChecked,
     } : null,
     screens: graph.screens?.length || 0,
+    uml: graph.uml?.counts || null,
     recentWork: { cards: graph.recent?.items.length || 0, tasks: graph.recent?.tasks.length || 0, file: fs.existsSync(recentFile) },
     notes: { claudeLocalMd: claudeNote, git: trackedWarning || null },
     // files written in the map folder; anything outside it is described in notes.claudeLocalMd (never in unattended mode)

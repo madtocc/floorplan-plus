@@ -1,5 +1,14 @@
 # Changelog
 
+## Unreleased
+
+Changes in this fork (developer-first, with UML):
+
+- **UML diagrams on the map:** a new **UML** button draws class diagrams (a part, a file, or one class and its neighbours, with inheritance, interfaces and what each constructor is handed), the data model as an entity-relationship diagram (Prisma models and Drizzle tables), and sequence diagrams that trace any endpoint or method call by call down to the database, or draw one of the map's flows. Each one copies out as Mermaid or PlantUML and downloads as SVG. Read from TypeScript and JavaScript at build time.
+- **tsoa endpoints sit on their controllers:** a tsoa API showed its endpoints in the routes file tsoa generates, thousands of lines nobody opens. They now sit on the controller method that answers them, with the full address from the generated file when it's in git, and Health reads `@Security`, `@NoSecurity` and `@Middlewares`.
+- **Maps are written for developers by default:** the skill sets `"audience": "developers"` unless asked for a plain-language map, and a developer map opens with technical detail on. `references/developer-maps.md` says how to carve monorepos and layered backends for that reader.
+- **Prisma schemas and Solidity contracts are code:** `.prisma` and `.sol` files were left off the map as "other" files.
+
 ## 0.11.0 (2026-11-16)
 
 - **Serverless Framework endpoints are on the map:** a backend whose endpoints are declared in `serverless.yml` rather than in code showed none, so the website's requests to it weren't connected and Health skipped its sign-in check. Endpoints now come from each function's `http` and `httpApi` events (`path` and `method`, `any` and `*`, and the short `http: GET /orders` form) in `serverless.yml`, `serverless-*.yml` and `serverless_*.yml`, including function lists split across files included with `${file(./functions.yml)}`. Each endpoint sits in the file its `handler:` names (`src/orders.create` is `create` in `src/orders.ts`), followed through a file that re-exports it, or into another file's function when the handler only passes the request on to it (`(event) => withEvent(event, options, orders.create)`). Health counts an `authorizer`, `private: true` (an API key) or a sign-in check handed to the wrapper as protecting an endpoint, and still reads the handler for a check of its own. CloudFormation tags (`!Ref`, `!GetAtt`, `!Sub`), `${opt:…}` and `${self:…}` variables and anchors are read without trouble, and the scan summary lists schedules, queues, streams and other background functions for a worker node. Sample configs in test folders add no endpoints. Reported and fixed by @ShehanEk in #131 and #132.

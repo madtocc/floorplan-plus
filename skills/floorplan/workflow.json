@@ -193,7 +193,7 @@
   "jobs": {
     "architecture": {
       "about": "SKILL.md steps 2-4: decide what the parts of the app are, and write architecture.json.",
-      "read": ["references/schema.md", "references/choosing-boundaries.md", "references/writing-descriptions.md"],
+      "read": ["references/schema.md", "references/choosing-boundaries.md", "references/developer-maps.md", "references/writing-descriptions.md"],
       "input": [
         { "name": "Scan summary", "from": "scan.summary" },
         { "name": "Your last architecture.json", "file": "floorplan/architecture.json", "optional": true },
@@ -202,12 +202,12 @@
       "instructions": [
         "You are drawing a map of a codebase that someone new can read like a system diagram: its parts, the outside services it uses, and how they connect. You can't ask anyone anything, so decide, and record anything uncertain in a summary.",
         "The scan summary lists the repos, a code tree with line counts, entrypoint candidates, the heaviest imports between folders, web requests matched to endpoints, and outside packages and hosts. Work from it. Don't try to read every file.",
-        "Read the reference documents you were given: schema.md is the format of your answer (architecture.json), choosing-boundaries.md is how to carve a codebase into a good map, and writing-descriptions.md says how to write labels and summaries.",
+        "Read the reference documents you were given: schema.md is the format of your answer (architecture.json), choosing-boundaries.md is how to carve a codebase into a good map, developer-maps.md is what changes when the reader is an engineer, and writing-descriptions.md says how to write labels and summaries.",
         "Explore just enough with your tools: READMEs, manifests (package.json, pyproject.toml, go.mod, docker-compose files, deploy configs) and entrypoints, then skim 1-2 files per candidate part until you can write a one-sentence summary for each. You're after the shape of the system, not a code review.",
         "Explore cheaply. Ask for several files in one turn when you can, and read the top of a file (start_line 1, end_line 60-80) rather than all of it; open more only if the top leaves its purpose unclear. Stop once every candidate part has its one-sentence summary: most codebases need 15-30 tool calls, and everything you read stays in the conversation and makes each later step slower.",
         "Don't invent. Add an external node, an edge or a flow step only for a connection you can point to: in the scan summary (imports, web requests, EXTERNAL PACKAGES, EXTERNAL HOSTS) or in code you read. A setting or a password that names a service is not evidence that the code talks to it; if you're unsure, leave it out and say so in a summary.",
         "Aim for: 3-9 top-level nodes; 3-12 children under each big one; `paths` globs covering more than 90% of code files; external nodes for the databases and outside services the code really talks to (with `packages` and `hosts` so the build connects them); edges only for what the scan can't see (queues, scheduled jobs, webhooks, calls through addresses kept in settings); 1-3 flows for the system's main jobs; and a `tour` of 3-8 stops in the order a newcomer should see them (what the app is, the apps people use, the main server, outside services, ending on an important screen's file). Every node needs a `summary`.",
-        "Audience: leave `audience` unset (everyone) unless the code is plainly for engineers (a library, an SDK, infrastructure code). Write `project.summary`, every node `label` and `summary`, and the tour in plain language for the app's owner (\"Plain language\" in writing-descriptions.md). Use short labels like \"Main server\" rather than \"Shop API (Flask)\". For everyone, framework and tool names (Express, React, FastAPI, Docker…) may appear once, in `project.summary`; keep them out of node summaries, flow notes and the tour, which say what each part does instead.",
+        "Audience: set `audience` to \"developers\" and write in technical style (developer-maps.md), unless the request asks for a plain-language map or one for a non-technical owner. For that reader, leave `audience` unset (everyone) and write `project.summary`, every node `label` and `summary`, and the tour in plain language for the app's owner (\"Plain language\" in writing-descriptions.md): short labels like \"Main server\" rather than \"Shop API (Flask)\", and framework and tool names (Express, React, FastAPI, Docker…) at most once, in `project.summary`.",
         "Say what the code does today, not what its names suggest (\"Say what it does today\" in writing-descriptions.md): if a part, a flow step or a tour stop is a placeholder that only replies or stores nothing yet, say so.",
         "Paths are relative to the codebase root and use forward slashes. With several repos side by side, they start with the repo folder, e.g. `api-service/src/**`.",
         "If you were given your last architecture.json and what the build said about it, fix every error the build names, and give each sizeable directory under \"unassigned, by directory\" a home (or an `ignore` entry for things that aren't the system: generated code, vendored copies, fixtures). Reword every label and summary a \"plain language:\" warning names, using the plain phrase it suggests, and split a part the build says holds many files in folders of their own into children by feature area. Keep the rest as it was.",
@@ -239,7 +239,7 @@
 
     "update_architecture": {
       "about": "A refresh's NEXT items fix_build, assign_new_files and review_structure: change architecture.json only as far as the item asks.",
-      "read": ["references/schema.md", "references/choosing-boundaries.md", "references/writing-descriptions.md"],
+      "read": ["references/schema.md", "references/choosing-boundaries.md", "references/developer-maps.md", "references/writing-descriptions.md"],
       "input": [
         { "name": "What to do (from the refresh's NEXT list)", "from": "item.text" },
         { "name": "What the refresh found", "from": "refresh.report" },

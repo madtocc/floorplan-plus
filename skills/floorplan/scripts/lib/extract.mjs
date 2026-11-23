@@ -2,6 +2,7 @@
 // Deliberately approximate: good enough to draw the map, cheap enough to run on any repo.
 import { forwardIndexOf, importStatements, callArgs } from './common.mjs';
 import { dataRoutes } from './route-tables.mjs';
+import { isTsoaController, tsoaRoutes } from './tsoa.mjs';
 
 import path from 'node:path';
 
@@ -462,6 +463,7 @@ function extractJs(src, filePath) {
 
   routes.push(...keyedRouteTable(code, at));
   if (/@nestjs\/common/.test(code) && /@Controller\s*\(/.test(code)) routes.push(...nestRoutes(code, at));
+  if (isTsoaController(code)) routes.push(...tsoaRoutes(code, at));
 
   const triggers = /firebase-functions/.test(code) ? firebaseFunctions(code, at, routes, mounts) : [];
 
@@ -2388,7 +2390,7 @@ function addDocs(src, lang, r) {
     if (rt.framework === 'next') { rt.handler = rt.method; continue; }
     // a Nest handler is a class method, not a symbol: keep the name found after the decorators
     // (the first symbol below could be the next controller class, or a DTO, in the same file)
-    if (rt.framework === 'nest') { const d = commentBefore(lines, rt.line - 1); if (d) rt.doc = d; continue; }
+    if (rt.framework === 'nest' || rt.framework === 'tsoa') { const d = commentBefore(lines, rt.line - 1); if (d) rt.doc = d; continue; }
     if (rt.framework === 'table') { const d = r.symbols?.find((s) => s.name === rt.handler)?.doc; if (d) rt.doc = d; continue; }
     // the extractor already named the action; its doc sits above the attributes, where rt.line points
     if (rt.framework === 'aspnet') {

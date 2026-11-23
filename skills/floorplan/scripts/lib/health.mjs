@@ -726,7 +726,9 @@ function jsRoutes(src, f, out) {
 
   routes.forEach((r, idx) => {
     const rec = { k: 'route', line: r.line, method: r.method };
-    if (r.framework === 'nest') {
+    if (r.framework === 'nest' || r.framework === 'tsoa') {
+      // tsoa controllers read the same way: @Route for the class, @Security / @NoSecurity / @Middlewares for who may call
+      const tsoa = r.framework === 'tsoa';
       // the decorators stacked on this method (above and below the route one, up to the handler), and the
       // ones on its class (around the nearest @Controller above)
       const i0 = r.line - 1;
@@ -735,19 +737,20 @@ function jsRoutes(src, f, out) {
       const hRe = r.handler ? new RegExp(`^\\s*(?:(?:public|private|protected|static|async|readonly)\\s+)*${r.handler.replace(/\$/g, '\\$')}\\s*\\(`) : null;
       while (hIdx < lines.length && hIdx < i0 + 30 && !(hRe && hRe.test(lines[hIdx]))) hIdx++;
       const methodDecos = lines.slice(top, hIdx).join('\n');
-      let c = i0; while (c >= 0 && !/@Controller\s*\(/.test(lines[c])) c--;
+      let c = i0; while (c >= 0 && !(tsoa ? /@Route\s*\(/ : /@Controller\s*\(/).test(lines[c])) c--;
       let cTop = c, cEnd = c;
       if (c >= 0) { while (cTop > 0 && /^\s*@/.test(lines[cTop - 1])) cTop--; while (cEnd < lines.length - 1 && !/\bclass\s/.test(lines[cEnd])) cEnd++; }
       const classDecos = c >= 0 ? lines.slice(cTop, cEnd + 1).join('\n') : '';
       const decos = methodDecos + '\n' + classDecos;
-      const guards = [...decos.matchAll(/@UseGuards\s*\(([^)]{0,500})\)/g)].flatMap((m) => m[1].match(/[A-Za-z_$][\w$]*/g) || []);
-      const guard = guards.find(isNestAuthGuard);
-      rec.nest = true; // only Nest routes are behind a Nest app-wide guard
-      if (NEST_PUBLIC.test(decos)) rec.nestPublic = true;
+      const guards = [...decos.matchAll(tsoa ? /@Middlewares\s*\(([^)]{0,500})\)/g : /@UseGuards\s*\(([^)]{0,500})\)/g)].flatMap((m) => m[1].match(/[A-Za-z_$][\w$]*/g) || []);
+      // @Security on the method or its class asks tsoa's authentication for a caller; @NoSecurity on the method opens it again
+      const guard = tsoa ? (/@Security\s*\(/.test(decos) && !/@NoSecurity\s*\(/.test(methodDecos) ? 'Security' : guards.find(isGuardName)) : guards.find(isNestAuthGuard);
+      if (!tsoa) rec.nest = true; // only Nest routes are behind a Nest app-wide guard
+      if (!tsoa && NEST_PUBLIC.test(decos)) rec.nestPublic = true;
       const next = routes.slice(idx + 1).find((x) => x.line > r.line)?.line || r.line + 80;
       const body = lines.slice(hIdx, Math.min(next - 1, hIdx + 80)).join('\n');
       if (guard) Object.assign(rec, { guard, via: 'decorator' });
-      else if (rec.nestPublic && INLINE_CHECK.test(body)) rec.via = 'inline';
+      else if ((tsoa || rec.nestPublic) && INLINE_CHECK.test(body)) rec.via = 'inline';
       if (SIGNATURE_CHECK.test(body)) rec.signed = true;
       if (PUBLIC_RESPONSE.test(body)) rec.publicResponse = true;
       if (r.handler) rec.fn = r.handler;

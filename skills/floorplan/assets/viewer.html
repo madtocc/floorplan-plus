@@ -2502,7 +2502,8 @@ window.Floorplan = Object.freeze({
   store,
   on(event, fn) { (ext.listeners[event] ||= []).push(fn); },
 });
-technicalFlag = !!store.get('technical', false);
+// a map written for developers opens in developer terms, until this browser is told otherwise
+technicalFlag = !!store.get('technical', G.meta?.audience === 'developers');
 
 const init = readHash();
 state.container = init.v; state.selected = init.s;

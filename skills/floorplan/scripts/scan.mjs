@@ -20,6 +20,7 @@ import { resolveRoutes, matchCalls, matchWayfinder, inertiaLinks } from './lib/r
 import { nuxtAutoImports } from './lib/nuxt.mjs';
 import { serverlessRoutes } from './lib/serverless.mjs';
 import { edgeFunctionRoutes } from './lib/supabase-functions.mjs';
+import { mergeTsoaGenerated } from './lib/tsoa.mjs';
 
 const args = parseArgs(process.argv.slice(2));
 const unattended = unattendedMode(args);
@@ -187,6 +188,8 @@ const serverless = serverlessRoutes(files, (p) => { try { return fs.readFileSync
 routes.push(...serverless.routes);
 // Supabase Edge Functions: each one's address under /functions/v1 (lib/supabase-functions.mjs)
 const edge = edgeFunctionRoutes(files, routes, (p) => { try { return fs.readFileSync(path.join(root, p), 'utf8'); } catch { return ''; } });
+// tsoa: the generated routes file hands each full address to the controller method that answers it (lib/tsoa.mjs)
+mergeTsoaGenerated(files, routes, (p) => { try { return fs.readFileSync(path.join(root, p), 'utf8'); } catch { return ''; } });
 const http = matchCalls(files, routes);
 // Laravel: Wayfinder's named routes and controller actions, and the Inertia page each endpoint opens
 const wayfinderLinks = matchWayfinder(files, routes, (p) => { try { return fs.readFileSync(path.join(root, p), 'utf8'); } catch { return ''; } });

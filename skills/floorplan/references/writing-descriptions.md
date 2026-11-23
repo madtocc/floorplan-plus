@@ -11,7 +11,7 @@ This guide covers the names and descriptions in `descriptions/*.json` and the `l
 - **`"everyone"` (default).** Assume the reader is the owner of the app, not an engineer. Often they built it with AI and don't know how it works inside. Write in **plain language**: what the thing does for the business or its users, in everyday words. Stay specific and accurate. See [Plain language](#plain-language) below.
 - **`"developers"`.** The reader is an engineer joining the codebase. Naming frameworks, patterns and mechanics is fine and often useful ("Flask blueprint", "SQLAlchemy model", "Pub/Sub consumer").
 
-Use `"developers"` only when the user asks for it, or the map is plainly for an engineering team (a library, an SDK, infrastructure code). If you're unsure, use `"everyone"`.
+This fork writes for `"developers"` by default ([developer-maps.md](developer-maps.md)). Use `"everyone"` when the user asks for a plain-language map, or the map is for the app's owner or a client rather than the team.
 
 ## Where they go
 

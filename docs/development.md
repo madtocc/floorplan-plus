@@ -21,6 +21,7 @@ skills/floorplan/
     choosing-boundaries.md   how to carve a codebase into a good map
     writing-descriptions.md  plain-language names and descriptions
     blueprint.md             plan.json, for a map planned from a PRD
+    developer-maps.md        carving and describing for engineers (this fork's default), and what UML adds
   scripts/             Node.js, no dependencies; Claude runs these
     status.mjs     is there a map, and how stale is it (runs when the skill loads)
     scan.mjs       repos, files, imports, endpoints, requests → .cache/scan.json
@@ -30,10 +31,10 @@ skills/floorplan/
     refresh.mjs    incremental update: re-scan, carry over, flag changes, rebuild
     recent.mjs     facts for marking recent work
     open.mjs       start or reuse the map's server, and open the browser
-    lib/           extraction, import resolution, Nuxt auto-imports, route matching, Health, screens, which agent is running, helpers
+    lib/           extraction, import resolution, Nuxt auto-imports, route matching, tsoa, Health, screens, the UML model, which agent is running, helpers
   assets/
     viewer.html    the map (template the build fills in)
-    ui/            viewer extensions: Theme button, blueprints, glossary, Health, recent work, screens, tour, waitlist card
+    ui/            viewer extensions: Theme button, blueprints, glossary, Health, recent work, screens, UML diagrams, tour, waitlist card
     graph-query.js shared map lookups (viewer, query.mjs, Ask instructions)
     serve.mjs      copied into each project's floorplan/ folder; answers through Claude Code or Codex
     page-safety.mjs  the one way data and code go into a page's <script> blocks, and its Content-Security-Policy
@@ -110,6 +111,7 @@ The tests use Node's built-in test runner, so there's nothing to install (`npm t
 | `laravel.test.mjs` | PHP and Laravel: `use` imports through composer's PSR-4 folders, routes under their groups and the route files around them, endpoints placed in the controller method that answers them, Wayfinder calls and Inertia pages linked to their endpoints, and Health reading route, group, controller and form-request checks (Laravel + Inertia sample in `fixtures/`) |
 | `supabase-functions.test.mjs` | Supabase Edge Functions: each folder under `supabase/functions/` an endpoint at `/functions/v1/<name>` (`Deno.serve`, the standard library's `serve()`, `export default { fetch }`), a router inside one (Hono) moved under `/functions/v1`, `_shared/` and files other than `index` left alone, the website's `supabase.functions.invoke()` calls and `/functions/v1/` requests reaching them, and Health judging each by its own code |
 | `php-pages.test.mjs` | plain PHP sites: each script under the document root (`public/`, `public_html/`, `www/`, `htdocs/`) an endpoint at its own address, `index.php` at its folder's, while scripts other scripts include, `_` and dot folders, and a framework's front controller (an `index.php` loading Composer's autoloader) are not |
+| `uml.test.mjs` | the UML model and tsoa: classes with members, visibility, what each constructor is handed and the calls in order (generics, abstract classes, decorators with type arguments, a class named in a comment left alone), Prisma and Drizzle tables with keys and each kind of relation, tsoa endpoints placed on their controller with the generated file's full address, Health reading `@Security` and `@NoSecurity`, calls resolved to classes and tables with logging left out, nothing from a string or comment reaching the model, and the UML lens loading on a built map (its code run against a stand-in viewer) |
 | `firebase.test.mjs` | Firebase Cloud Functions: callables and onRequest functions as endpoints, the website's calls to them, Screens, Health, background functions (React + Firebase sample in `fixtures/`) |
 | `serverless.test.mjs` | Serverless Framework: endpoints from `http` and `httpApi` events in `serverless.yml` and the files it includes with `${file(...)}`, short and long forms, each placed in its handler's file (through a re-export, or into the function a wrapper hands the request to), the website's requests reaching them, Health reading authorizers, API keys and checks handed to a wrapper (not a handler whose own name sounds like one), each address of a handler judged on its own, background functions in the summary, and YAML with CloudFormation tags, variables, anchors, junk, stray brackets and very long lines read quickly without failing, and sample configs in test folders and configs too big to read left out (sample in `fixtures/`) |
 | `blueprint.test.mjs` | a map planned from a PRD before any code exists: plan.json errors, endpoints and calls, Screens, the design review, refreshing and switching to the real code (sample PRD in `fixtures/`) |

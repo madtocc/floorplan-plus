@@ -31,6 +31,16 @@ Claude or Codex reads your codebase and draws an interactive map of it. Every pa
 <p align="center"><sub>▶ <a href="https://youtu.be/NTUUzC7L_NQ">Watch the walkthrough</a>: installing Floorplan, then a tour of Brewline, a demo coffee-subscription app built across four repos.</sub></p>
 <p align="center"><b><a href="https://haydenschmitty.github.io/floorplan-demo/">Try the live demo →</a></b> Explore the Brewline map in your browser, no install needed.</p>
 
+## This fork
+
+A fork of [haydenschmitty/floorplan](https://github.com/haydenschmitty/floorplan) set up for engineers working in TypeScript backends and frontends:
+
+- **UML on the map.** Class diagrams with dependency injection, an entity-relationship diagram from Prisma and Drizzle, and sequence diagrams traced from any endpoint down to the database. Each copies out as Mermaid or PlantUML. See [UML](docs/using-the-map.md#uml).
+- **Developer-first.** Maps are written in technical language unless you ask for a plain one, and open with technical detail on.
+- **tsoa, Prisma and Solidity.** tsoa endpoints sit on their controller methods (Health reads `@Security`), and `.prisma` and `.sol` files are on the map.
+
+It runs as a personal skill, not as a plugin: link the skill folder into your skills (`ln -s /path/to/this/folder/skills/floorplan ~/.claude/skills/floorplan`) and ask for a floorplan, or type `/floorplan`. Edits to this folder apply in the next session. Everything below is upstream's README, so its install steps are for the original plugin.
+
 ## Why Floorplan?
 
 You built an app, probably with a lot of help from AI, and it works. But ask "what happens when someone checks out?" or "what breaks if I change this?" and the honest answer is *no idea*.
